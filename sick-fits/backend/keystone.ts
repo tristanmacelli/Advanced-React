@@ -1,52 +1,54 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/indent */
 import { createAuth } from '@keystone-next/auth';
 import 'dotenv/config';
 import { config, createSchema } from '@keystone-next/keystone/schema';
-import { withItemData, statelessSessions } from '@keystone-next/keystone/session';
+import {
+  withItemData,
+  statelessSessions,
+} from '@keystone-next/keystone/session';
 import { User } from './schemas/User';
 
 const databaseURL =
-    process.env.DATABASE_URL || 'mongodb://localhost/keystone-sick-fits-tutorial';
+  process.env.DATABASE_URL || 'mongodb://localhost/keystone-sick-fits-tutorial';
 
 const sessionConfig = {
-    maxAge: 60 * 60 * 24 * 360, // How long should users stay signed in
-    secret: process.env.COOKIE_SECRET,
+  maxAge: 60 * 60 * 24 * 360, // How long should users stay signed in
+  secret: process.env.COOKIE_SECRET,
 };
 
 const { withAuth } = createAuth({
-    listKey: 'User',
-    identityField: 'email',
-    secretField: 'password',
-    initFirstItem: {
-        fields: ['name', 'email', 'password']
-        // TODO: Add in initial roles here
-    }
+  listKey: 'User',
+  identityField: 'email',
+  secretField: 'password',
+  initFirstItem: {
+    fields: ['name', 'email', 'password'],
+    // TODO: Add in initial roles here
+  },
 });
 
-export default withAuth(config({
+export default withAuth(
+  config({
     server: {
-        cors: {
-            origin: [process.env.FRONTEND_URL],
-            credentials: true,
-        },
+      cors: {
+        origin: [process.env.FRONTEND_URL],
+        credentials: true,
+      },
     },
     db: {
-        adapter: 'mongoose',
-        url: databaseURL,
-        // TODO: Add data seeding here
+      adapter: 'mongoose',
+      url: databaseURL,
+      // TODO: Add data seeding here
     },
     lists: createSchema({
-        // Schema items go in here
-        User,
+      // Schema items go in here
+      User,
     }),
     ui: {
-        // Show the ui only for people who pass this test
-        isAccessAllowed: ({ session }) => !!session?.data,
+      // Show the ui only for people who pass this test
+      isAccessAllowed: ({ session }) => !!session?.data,
     },
     session: withItemData(statelessSessions(sessionConfig), {
-        // GraphQL Query
-        User: 'id'
-    })
-})
+      // GraphQL Query
+      User: 'id',
+    }),
+  })
 );
