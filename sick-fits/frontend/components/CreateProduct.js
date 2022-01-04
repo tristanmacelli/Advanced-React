@@ -1,4 +1,5 @@
 import { gql, useMutation } from 'graphql-tag';
+import Router from 'next/router';
 import DisplayError from './ErrorMessage';
 import Form from './styles/Form';
 import useForm from '../lib/useForm';
@@ -48,8 +49,12 @@ export default function CreateProduct() {
       onSubmit={async (e) => {
         e.preventDefault();
         // Submit your input fields to the backend
-        await createProduct();
+        const res = await createProduct();
         clearForm();
+        // Go to that products page
+        Router.push({
+          pathname: `/product/${res.data.createProduct.id}`,
+        });
       }}
     >
       <DisplayError error={error} />
